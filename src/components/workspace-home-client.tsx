@@ -12,7 +12,6 @@ import {
   Gamepad2,
   Layers3,
   Users,
-  UserPlus,
 } from "lucide-react";
 import { createTournament } from "@/lib/actions/tournament";
 
