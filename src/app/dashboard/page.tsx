@@ -7,10 +7,6 @@ import {
   Users,
   Trophy,
   Plus,
-  ChevronRight,
-  Calendar,
-  Gamepad2,
-  Activity,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";

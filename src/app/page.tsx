@@ -4,13 +4,10 @@ import { redirect } from "next/navigation";
 import { AxisWordmark } from "@/components/axis-wordmark";
 import {
   ArrowRight,
-  Shield,
-  Check,
   Zap,
   TrendingUp,
   TrendingDown,
   Lock,
-  Layers,
   Sparkles,
 } from "lucide-react";
 
@@ -294,7 +291,7 @@ export default async function LandingPage() {
             </div>
             <div className="telemetry-panel-raised p-3 font-mono text-[10px] space-y-1 text-text-muted">
               <div className="flex justify-between">
-                <span>"GodLike_BR" → GodLike Esports</span>
+                <span>&quot;GodLike_BR&quot; → GodLike Esports</span>
                 <span className="text-signal-cyan font-bold">96% MATCH</span>
               </div>
             </div>
