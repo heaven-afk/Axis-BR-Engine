@@ -1,0 +1,156 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum WorkspaceType {
+  personal
+  team
+}
+
+enum WorkspaceRole {
+  owner
+  analyst
+  observer
+}
+
+enum GameMode {
+  solo
+  duo
+  squad
+}
+
+enum TournamentFormat {
+  player
+  team
+  both
+}
+
+model Workspace {
+  id          String            @id @default(cuid())
+  name        String
+  type        WorkspaceType
+  ownerUserId String
+  createdAt   DateTime          @default(now())
+  members     WorkspaceMember[]
+  tournaments Tournament[]
+
+  @@index([ownerUserId])
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole
+  invitedBy   String?
+  joinedAt    DateTime      @default(now())
+  inviteToken String?       @unique
+  inviteExpiry DateTime?
+  status      String        @default("active")
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model Tournament {
+  id             String            @id @default(cuid())
+  workspaceId    String
+  name           String
+  gameMode       GameMode
+  format         TournamentFormat
+  numDays        Int
+  lobbiesPerDay  Int
+  createdBy      String
+  createdAt      DateTime          @default(now())
+  workspace      Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  scoringConfig  ScoringConfig?
+  teams          Team[]
+  players        Player[]
+  matchResults   MatchResult[]
+  playerStats    PlayerMatchStat[]
+
+  @@index([workspaceId])
+}
+
+model ScoringConfig {
+  id              String     @id @default(cuid())
+  tournamentId    String     @unique
+  pointsPerKill   Decimal    @db.Decimal(8, 2)
+  placementPoints Json
+  tournament      Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id           String        @id @default(cuid())
+  tournamentId String
+  teamName     String
+  clanName     String?
+  tier         String?
+  slotNumber   Int
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  players      Player[]
+  matchResults MatchResult[]
+
+  @@unique([tournamentId, slotNumber])
+  @@index([tournamentId])
+}
+
+model Player {
+  id                String            @id @default(cuid())
+  tournamentId      String
+  teamId            String?
+  professionalName  String
+  inGameName        String
+  gender            String?
+  region            String?
+  country           String?
+  device            String?
+  deviceModel       String?
+  slotNumber        Int?
+  tournament        Tournament        @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  team              Team?             @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  playerMatchStats  PlayerMatchStat[]
+
+  @@index([tournamentId])
+  @@index([teamId])
+}
+
+model MatchResult {
+  id           String     @id @default(cuid())
+  tournamentId String
+  teamId       String
+  dayNumber    Int
+  lobbyNumber  Int
+  placement    Int?
+  kills        Int        @default(0)
+  bonusAdd     Int        @default(0)
+  bonusMinus   Int        @default(0)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, dayNumber, lobbyNumber])
+  @@index([tournamentId, dayNumber, lobbyNumber])
+}
+
+model PlayerMatchStat {
+  id           String     @id @default(cuid())
+  tournamentId String
+  playerId     String
+  dayNumber    Int
+  lobbyNumber  Int
+  kills        Int        @default(0)
+  damage       Int        @default(0)
+  accuracy     Decimal    @default(0) @db.Decimal(6, 2)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  player       Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, dayNumber, lobbyNumber])
+  @@index([tournamentId, dayNumber, lobbyNumber])
+}
+
