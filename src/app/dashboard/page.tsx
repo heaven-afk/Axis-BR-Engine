@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Calendar,
   Gamepad2,
+  Activity,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -26,38 +27,34 @@ export default async function DashboardPage() {
   const firstName = user?.firstName || user?.username || "Analyst";
 
   return (
-    <div className="px-6 py-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-1">
-          Welcome back
-        </p>
-        <h1 className="text-3xl font-bold text-foreground">
-          Hey, {firstName} 👋
+    <div className="px-6 py-8 max-w-7xl mx-auto space-y-8 font-sans">
+      {/* Telemetry Header */}
+      <div className="border-b border-line pb-6">
+        <div className="flex items-center gap-2 font-mono text-[11px] text-signal-orange uppercase tracking-[0.2em] mb-1">
+          <span className="size-2 rounded-full bg-signal-orange animate-pulse" />
+          OPERATIONS.CONSOLE // WORKSPACES
+        </div>
+        <h1 className="font-display text-3xl font-bold text-text-primary uppercase tracking-tight">
+          Welcome, {firstName}
         </h1>
-        <p className="text-muted text-sm mt-1">
-          Select a workspace to view tournaments, or create a new team
-          workspace to collaborate with your analysts.
+        <p className="text-text-muted text-xs font-mono mt-1">
+          SELECT AN OPERATIONAL WORKSPACE TO ENTER MATCH TELEMETRY OR MANAGE TOURNAMENT STANDINGS.
         </p>
       </div>
 
       {workspaceList.length === 0 && (
-        <div className="mb-8 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm">
-          <p className="font-bold text-yellow-400 mb-1">
-            ⚠️ Database Connection Required
+        <div className="telemetry-panel p-5 border-l-4 border-l-warning text-xs font-mono space-y-2">
+          <p className="font-bold text-warning uppercase">
+            ⚠️ DATABASE CONFIGURATION REQUIRED
           </p>
-          <p className="text-yellow-200/80 leading-relaxed">
-            Your database tables have not been created yet or your PostgreSQL connection in <code className="bg-black/40 px-1.5 py-0.5 rounded text-yellow-300">.env</code> needs to be configured.
+          <p className="text-text-muted">
+            PostgreSQL connection needs initialization. Run <code className="text-signal-orange">npx prisma db push</code> to apply schemas.
           </p>
-          <div className="mt-3 bg-black/50 p-3 rounded-lg border border-yellow-500/20 text-xs font-mono text-yellow-100">
-            1. Update DATABASE_URL in .env<br />
-            2. Run: <span className="text-accent font-bold">npx prisma db push</span>
-          </div>
         </div>
       )}
 
       {/* Workspace Cards */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {workspaceList.map(({ workspace, role }: { workspace: { id: string; name: string; type: string; ownerUserId: string; tournaments?: Array<{ id: string; name: string; gameMode: string; numDays: number; createdAt: Date }> }; role: string }) => (
           <WorkspaceCard
             key={workspace.id}
@@ -66,25 +63,24 @@ export default async function DashboardPage() {
           />
         ))}
 
-        {/* Create team workspace CTA */}
         <CreateWorkspaceCTA />
       </div>
 
-      {/* Quick stats */}
+      {/* Quick stats telemetry panel */}
       {workspaceList.length > 0 && (
-        <div className="mt-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted mb-4">
-            Platform Overview
+        <div className="pt-8 border-t border-line">
+          <p className="telemetry-channel text-signal-cyan mb-4">
+            SYSTEM.OVERVIEW // METRICS
           </p>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-3 gap-5 font-mono">
             <StatCard
-              icon={<Shield size={18} className="text-accent" />}
-              label="Workspaces"
+              icon={<Shield size={18} className="text-signal-orange" />}
+              label="ACTIVE WORKSPACES"
               value={workspaceList.length}
             />
             <StatCard
-              icon={<Trophy size={18} className="text-yellow-400" />}
-              label="Tournaments"
+              icon={<Trophy size={18} className="text-signal-cyan" />}
+              label="TOTAL TOURNAMENTS"
               value={workspaceList.reduce(
                 (acc: number, { workspace }: { workspace: { tournaments?: unknown[] } }) =>
                   acc + (workspace.tournaments?.length ?? 0),
@@ -92,8 +88,8 @@ export default async function DashboardPage() {
               )}
             />
             <StatCard
-              icon={<Users size={18} className="text-purple-400" />}
-              label="Team Workspaces"
+              icon={<Users size={18} className="text-text-primary" />}
+              label="TEAM WORKSPACES"
               value={
                 workspaceList.filter(({ workspace }: { workspace: { type: string } }) => workspace.type === "team")
                   .length
@@ -104,9 +100,9 @@ export default async function DashboardPage() {
       )}
 
       {/* Footer brand */}
-      <p className="mt-16 text-center text-[10px] text-muted/50">
-        Powered by Axis Stat Engine · Built on Nova Technologies
-      </p>
+      <div className="pt-12 text-center font-mono text-[10px] text-text-muted/60">
+        AXIS STAT ENGINE v1.0 · POWERED BY NOVA TECHNOLOGIES
+      </div>
     </div>
   );
 }
@@ -129,84 +125,60 @@ function WorkspaceCard({
   return (
     <Link
       href={`/dashboard/workspace/${workspace.id}`}
-      className="group rounded-xl border border-line/60 bg-panel/60 p-5 hover:border-accent/30 hover:bg-panel/80 transition-all hover:shadow-[0_0_24px_rgba(60,190,170,0.06)] flex flex-col"
+      className="telemetry-panel p-5 hover:border-signal-orange/60 transition-all flex flex-col justify-between group"
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div
-          className={`grid size-10 place-items-center rounded-lg ${
-            isTeam
-              ? "bg-purple-500/15 text-purple-400"
-              : "bg-accent/10 text-accent"
-          }`}
-        >
-          {isTeam ? <Users size={20} /> : <Shield size={20} />}
-        </div>
-        <ChevronRight
-          size={16}
-          className="text-muted opacity-0 group-hover:opacity-100 transition mt-0.5"
-        />
-      </div>
-
-      <h2 className="font-bold text-foreground text-base leading-tight">
-        {workspace.name}
-      </h2>
-      <p className="text-xs text-muted capitalize mt-0.5 mb-4">
-        {isTeam ? "Team workspace" : "Personal workspace"} · {role}
-      </p>
-
-      {/* Tournament count & Members link */}
-      <div className="flex items-center justify-between text-xs text-muted mt-auto pt-2">
-        <div className="flex items-center gap-1.5">
-          <Trophy size={13} />
-          <span>
-            {tournaments.length} tournament{tournaments.length !== 1 ? "s" : ""}
+      <div>
+        <div className="flex items-center justify-between mb-3 border-b border-line/60 pb-2">
+          <span className="telemetry-channel">
+            {isTeam ? "TEAM.WORKSPACE" : "PERSONAL.WORKSPACE"}
+          </span>
+          <span className="font-mono text-[10px] uppercase font-bold text-signal-cyan">
+            {role}
           </span>
         </div>
-        <span className="flex items-center gap-1 text-[11px] font-semibold text-purple-400 group-hover:text-purple-300 transition">
-          <Users size={12} /> Members
-        </span>
+
+        <h2 className="font-display font-bold text-text-primary text-lg leading-tight uppercase group-hover:text-signal-orange transition">
+          {workspace.name}
+        </h2>
       </div>
 
-      {/* Latest tournament */}
-      {tournaments.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-line/40">
-          <p className="text-[10px] text-muted uppercase tracking-wider mb-1">
-            Latest
-          </p>
-          <div className="flex items-center gap-2 text-xs">
-            <Gamepad2 size={12} className="text-accent shrink-0" />
-            <span className="truncate text-foreground font-medium">
-              {tournaments[0].name}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted mt-1">
-            <Calendar size={11} />
-            <span>{tournaments[0].numDays} days · {tournaments[0].gameMode}</span>
-          </div>
+      <div className="mt-6 pt-4 border-t border-line/40 space-y-3">
+        <div className="flex items-center justify-between font-mono text-xs text-text-muted">
+          <span className="flex items-center gap-1.5">
+            <Trophy size={13} className="text-signal-orange" />
+            <span className="font-bold text-text-primary">{tournaments.length}</span> EVENTS
+          </span>
+          <span className="text-[11px] font-semibold text-signal-cyan flex items-center gap-1">
+            <Users size={12} /> MEMBERS
+          </span>
         </div>
-      )}
+
+        {tournaments.length > 0 && (
+          <div className="font-mono text-[11px] bg-panel-raised p-2 rounded-sm border border-line/40">
+            <p className="text-text-muted text-[9px] uppercase tracking-wider">LATEST EVENT</p>
+            <p className="text-text-primary font-bold truncate mt-0.5">{tournaments[0].name}</p>
+            <p className="text-text-muted text-[10px] mt-0.5">{tournaments[0].numDays} DAYS · {tournaments[0].gameMode.toUpperCase()}</p>
+          </div>
+        )}
+      </div>
     </Link>
   );
 }
 
 function CreateWorkspaceCTA() {
   return (
-    <div className="rounded-xl border border-dashed border-line/50 bg-transparent p-5 flex flex-col items-center justify-center text-center gap-3 min-h-[160px] hover:border-accent/30 hover:bg-accent/3 transition-colors group">
-      <div className="grid size-10 place-items-center rounded-lg border border-dashed border-line/60 text-muted group-hover:border-accent/40 group-hover:text-accent transition">
-        <Plus size={20} />
+    <div className="telemetry-panel border-dashed p-6 flex flex-col items-center justify-center text-center gap-3 min-h-[180px] hover:border-signal-orange/50 transition group cursor-pointer">
+      <div className="grid size-9 place-items-center rounded-sm bg-signal-orange/10 border border-signal-orange/30 text-signal-orange group-hover:bg-signal-orange group-hover:text-black transition">
+        <Plus size={18} />
       </div>
       <div>
-        <p className="text-sm font-semibold text-foreground">
-          New Team Workspace
+        <p className="font-display text-sm font-bold uppercase text-text-primary">
+          Create Team Workspace
         </p>
-        <p className="text-xs text-muted mt-1">
-          Invite analysts to collaborate
+        <p className="font-mono text-[11px] text-text-muted mt-1">
+          INVITE ANALYSTS & OBSERVERS
         </p>
       </div>
-      <p className="text-[10px] text-muted/60">
-        Use the sidebar button to create
-      </p>
     </div>
   );
 }
@@ -221,11 +193,11 @@ function StatCard({
   value: number;
 }) {
   return (
-    <div className="rounded-lg border border-line/50 bg-panel/50 p-4 flex items-center gap-4">
+    <div className="telemetry-panel p-4 flex items-center gap-4">
       <div className="shrink-0">{icon}</div>
       <div>
-        <p className="text-xl font-bold text-foreground">{value}</p>
-        <p className="text-xs text-muted">{label}</p>
+        <p className="font-mono text-2xl font-bold text-text-primary">{value}</p>
+        <p className="font-mono text-[10px] text-text-muted tracking-wider">{label}</p>
       </div>
     </div>
   );

@@ -80,32 +80,32 @@ export function WorkspaceHomeClient({
   return (
     <div className="px-6 py-8 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-10">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-10 pb-6 border-b border-line">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted mb-1">
-            {workspaceType === "team" ? "Team Workspace" : "Personal Workspace"}
+          <p className="telemetry-channel text-signal-orange mb-1">
+            {workspaceType === "team" ? "WORKSPACE // TEAM" : "WORKSPACE // PERSONAL"}
           </p>
-          <h1 className="text-3xl font-bold text-foreground">{workspaceName}</h1>
-          <p className="text-sm text-muted mt-1 capitalize">
-            Your role: <span className="text-accent font-semibold">{role}</span>
+          <h1 className="font-display text-3xl font-bold text-text-primary uppercase tracking-tight">{workspaceName}</h1>
+          <p className="font-mono text-xs text-text-muted mt-1 uppercase">
+            ROLE: <span className="text-signal-cyan font-bold">{role}</span>
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
             href={`/dashboard/workspace/${workspaceId}/members`}
-            className="inline-flex items-center gap-2 rounded-lg border border-line/70 bg-panel/60 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-panel hover:border-accent/40 transition"
+            className="inline-flex items-center gap-2 rounded-sm border border-line bg-panel px-4 py-2 font-mono text-xs font-semibold text-text-primary hover:border-signal-cyan/50 transition uppercase"
           >
-            <Users size={16} className="text-purple-400" />
+            <Users size={14} className="text-signal-cyan" />
             {role === "owner" ? "Manage / Invite Members" : "View Members"}
           </Link>
 
           {canEdit && (
             <button
               onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-black hover:bg-accent/90 transition shadow-[0_0_16px_rgba(60,190,170,0.25)]"
+              className="inline-flex items-center gap-2 rounded-sm bg-signal-orange px-5 py-2 font-mono text-xs font-bold text-black hover:bg-signal-orange/90 transition shadow-panel-glow uppercase"
             >
-              <Plus size={16} /> New Tournament
+              <Plus size={15} /> New Tournament
             </button>
           )}
         </div>

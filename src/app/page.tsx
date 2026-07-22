@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { AxisWordmark } from "@/components/axis-wordmark";
 import {
-  Shield,
-  Trophy,
-  Users,
-  ClipboardList,
-  Zap,
   ArrowRight,
-  BarChart3,
-  Globe,
+  Shield,
+  Check,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Lock,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 
 export default async function LandingPage() {
@@ -17,227 +19,308 @@ export default async function LandingPage() {
   if (userId) redirect("/dashboard");
 
   return (
-    <main className="min-h-screen overflow-x-hidden">
-      {/* ── Nav ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-line/30 bg-[#080a0e]/80 backdrop-blur-xl">
+    <main className="min-h-screen bg-void text-text-primary overflow-x-hidden font-sans">
+      {/* ── Technical Nav Bar ── */}
+      <nav className="fixed top-0 inset-x-0 z-50 border-b border-line bg-void/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <div className="grid size-8 place-items-center rounded-md bg-accent/15 text-accent">
-              <Shield size={16} />
+            <div className="grid size-7 place-items-center rounded bg-signal-orange/15 text-signal-orange border border-signal-orange/30 font-mono text-xs font-bold">
+              AX
             </div>
             <div>
-              <p className="text-sm font-bold leading-tight text-foreground">
-                Axis Engine
+              <p className="font-display text-sm font-bold tracking-tight text-text-primary">
+                AXIS ENGINE
               </p>
-              <p className="text-[9px] text-muted leading-tight">
-                by Nova Technologies
+              <p className="font-mono text-[9px] text-text-muted tracking-wider">
+                OPS.CONSOLE // V1.0
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Link
               href="/sign-in"
-              className="text-sm text-muted hover:text-foreground transition"
+              className="font-mono text-xs text-text-muted hover:text-text-primary transition uppercase tracking-wider"
             >
-              Sign in
+              Sign In
             </Link>
             <Link
               href="/sign-up"
-              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-bold text-black hover:bg-accent/90 transition"
+              className="inline-flex items-center gap-1.5 rounded-sm bg-signal-orange px-4 py-2 font-mono text-xs font-bold text-black hover:bg-signal-orange/90 transition tracking-wider uppercase"
             >
-              Get started <ArrowRight size={14} />
+              Launch Console <ArrowRight size={13} />
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ── */}
-      <section className="relative pt-36 pb-28 px-6 text-center">
-        {/* Glow blobs */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 overflow-hidden"
-        >
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-accent/10 blur-[120px]" />
-          <div className="absolute top-10 right-[5%] w-[300px] h-[300px] rounded-full bg-danger/8 blur-[90px]" />
-        </div>
+      {/* ── Telemetry Hero Section ── */}
+      <section className="relative pt-32 pb-20 px-6 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          {/* Left Column: Animated Logo + Telemetry Readout + CTAs */}
+          <div className="lg:col-span-6 space-y-8">
+            <AxisWordmark />
 
-        <div className="relative mx-auto max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/8 px-4 py-1.5 text-xs font-semibold text-accent mb-6">
-            <Zap size={12} />
-            Powered by Axis Stat Engine · Built on Nova Technologies
-          </div>
-
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.05]">
-            CODM Battle Royale
-            <br />
-            <span className="bg-gradient-to-r from-accent via-[#60e8d0] to-accent bg-clip-text text-transparent">
-              Axis Results Engine
-            </span>
-          </h1>
-
-          <p className="mt-6 text-lg text-muted max-w-2xl mx-auto leading-relaxed">
-            A multi-user esports analytics platform for CODM BR analysts.
-            Create tournament workspaces, invite your team, enter match data,
-            and watch live standings compute in real-time.
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-7 py-3.5 text-sm font-bold text-black shadow-[0_0_24px_rgba(60,190,170,0.35)] hover:bg-accent/90 hover:shadow-[0_0_32px_rgba(60,190,170,0.5)] transition-all"
-            >
-              Start your workspace <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/sign-in"
-              className="inline-flex items-center gap-2 rounded-lg border border-line/70 bg-white/5 px-7 py-3.5 text-sm font-semibold text-foreground hover:bg-white/10 transition"
-            >
-              Sign in to existing account
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Feature Grid ── */}
-      <section className="px-6 pb-28">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted mb-3">
-              Platform Features
+            <p className="text-base text-text-muted leading-relaxed max-w-xl">
+              Live esports operations console for CODM Battle Royale analysts. Enter match telemetry, run real-time point re-computations, and manage tournament workspaces with zero delay.
             </p>
-            <h2 className="text-3xl font-bold text-foreground">
-              Everything your analyst team needs
-            </h2>
+
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 rounded-sm bg-signal-orange px-6 py-3 font-mono text-xs font-bold text-black uppercase tracking-wider hover:bg-signal-orange/90 transition shadow-panel-glow"
+              >
+                Start Workspace <ArrowRight size={14} />
+              </Link>
+              <Link
+                href="/sign-in"
+                className="inline-flex items-center gap-2 rounded-sm border border-line bg-panel px-6 py-3 font-mono text-xs font-medium text-text-primary uppercase tracking-wider hover:border-text-muted transition"
+              >
+                Sign In To Console
+              </Link>
+            </div>
+
+            <div className="pt-4 border-t border-line/60 flex items-center gap-6 font-mono text-[11px] text-text-muted">
+              <span>NO SPREADSHEETS</span>
+              <span className="text-line">•</span>
+              <span>LEVENSHTEIN MATCHING</span>
+              <span className="text-line">•</span>
+              <span>ROLE RBAC</span>
+            </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((f) => (
-              <FeatureCard key={f.title} {...f} />
-            ))}
-          </div>
-        </div>
-      </section>
+          {/* Right Column: Live Standings Telemetry Mockup */}
+          <div className="lg:col-span-6">
+            <div className="telemetry-panel p-4 shadow-cyan-glow">
+              <div className="flex items-center justify-between border-b border-line pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-signal-cyan animate-pulse" />
+                  <span className="telemetry-channel text-signal-cyan">
+                    CHANNEL // STANDINGS.LIVE
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-text-muted">
+                  MATCH 6/6 · GRAND FINALS
+                </span>
+              </div>
 
-      {/* ── Multi-user callout ── */}
-      <section className="px-6 pb-28">
-        <div className="mx-auto max-w-5xl rounded-2xl border border-accent/20 bg-accent/5 p-10 text-center relative overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] rounded-full bg-accent/10 blur-[60px]" />
-          </div>
-          <div className="relative">
-            <Users className="text-accent mx-auto mb-4" size={36} />
-            <h2 className="text-2xl font-bold text-foreground mb-3">
-              Built for analyst teams
-            </h2>
-            <p className="text-muted max-w-xl mx-auto leading-relaxed text-sm">
-              Create a team workspace, invite your analysts and observers.
-              Everyone works on the same tournament data in real-time — no
-              more emailing spreadsheets back and forth.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-6 text-xs text-muted">
-              <RolePill role="Owner" desc="Full control" color="accent" />
-              <RolePill role="Analyst" desc="Enter & edit data" color="success" />
-              <RolePill role="Observer" desc="Read-only view" color="muted" />
+              <div className="overflow-x-auto">
+                <table className="w-full font-mono text-xs">
+                  <thead>
+                    <tr className="text-left text-text-muted border-b border-line/50">
+                      <th className="py-2 px-2 text-[10px] uppercase">RANK</th>
+                      <th className="py-2 px-2 text-[10px] uppercase">TEAM</th>
+                      <th className="py-2 px-2 text-right text-[10px] uppercase">PTS</th>
+                      <th className="py-2 px-2 text-right text-[10px] uppercase">PLACE</th>
+                      <th className="py-2 px-2 text-right text-[10px] uppercase">ELIMS</th>
+                      <th className="py-2 px-2 text-center text-[10px] uppercase">TREND</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line/30">
+                    {heroStandings.map((row) => (
+                      <tr key={row.team} className="hover:bg-panel-raised/50 transition">
+                        <td className="py-2.5 px-2 font-bold text-text-primary">#{row.rank}</td>
+                        <td className="py-2.5 px-2 font-bold text-text-primary flex items-center gap-2">
+                          <span className="size-1.5 rounded-full bg-signal-orange" />
+                          {row.team}
+                        </td>
+                        <td className="py-2.5 px-2 text-right font-bold text-signal-cyan">{row.pts}</td>
+                        <td className="py-2.5 px-2 text-right text-text-muted">{row.place}</td>
+                        <td className="py-2.5 px-2 text-right text-text-muted">{row.elims}</td>
+                        <td className="py-2.5 px-2 text-center">
+                          {row.trend > 0 ? (
+                            <span className="inline-flex items-center gap-0.5 text-signal-cyan font-bold">
+                              <TrendingUp size={12} />+{row.trend}
+                            </span>
+                          ) : row.trend < 0 ? (
+                            <span className="inline-flex items-center gap-0.5 text-signal-red font-bold">
+                              <TrendingDown size={12} />{row.trend}
+                            </span>
+                          ) : (
+                            <span className="text-text-muted">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-line/40 flex items-center justify-between text-[10px] font-mono text-text-muted">
+                <span>RECOMPUTATION TIME: 0.02s</span>
+                <span className="text-signal-cyan">AUTO-SYNCED</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-line/30 px-6 py-8">
-        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
-          <div className="flex items-center gap-2">
-            <Shield size={14} className="text-accent" />
-            <span>Axis BR Results Engine</span>
+      {/* ── Telemetry Feature Panels Grid ── */}
+      <section className="py-20 px-6 max-w-7xl mx-auto border-t border-line">
+        <div className="mb-12">
+          <p className="telemetry-channel text-signal-orange mb-1">
+            OPS.SYSTEM // CAPABILITIES
+          </p>
+          <h2 className="font-display text-3xl font-bold tracking-tight uppercase">
+            Telemetry & Data Infrastructure
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Panel 1: Live Standings */}
+          <div className="telemetry-panel p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
+                <span className="telemetry-channel">STANDINGS.LIVE</span>
+                <span className="size-2 rounded-full bg-signal-cyan" />
+              </div>
+              <h3 className="font-display font-bold text-lg mb-2">Live Real-time Standings</h3>
+              <p className="text-xs text-text-muted leading-relaxed mb-4">
+                Recomputes rank standings instantly on match data submission. Zero page reloads required.
+              </p>
+            </div>
+            <div className="telemetry-panel-raised p-3 font-mono text-[11px] space-y-1.5">
+              <div className="flex justify-between text-text-muted">
+                <span>1. GodLike Esports</span>
+                <span className="text-signal-cyan font-bold">142 PTS</span>
+              </div>
+              <div className="flex justify-between text-text-muted">
+                <span>2. Team Vitality</span>
+                <span className="text-signal-cyan font-bold">128 PTS</span>
+              </div>
+            </div>
           </div>
-          <p>Powered by Axis Stat Engine · Built on Nova Technologies</p>
-          <p>© {new Date().getFullYear()} Nova Technologies</p>
+
+          {/* Panel 2: Smart Data Entry */}
+          <div className="telemetry-panel p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
+                <span className="telemetry-channel">DATA.ENTRY</span>
+                <span className="font-mono text-[10px] text-signal-orange">PARSER v2</span>
+              </div>
+              <h3 className="font-display font-bold text-lg mb-2">Delimited Paste Parser</h3>
+              <p className="text-xs text-text-muted leading-relaxed mb-4">
+                Paste tabular data directly from Excel or Sheets. Auto-detects delimiters and column structures.
+              </p>
+            </div>
+            <div className="telemetry-panel-raised p-3 font-mono text-[10px] text-text-muted">
+              <p className="text-signal-orange font-semibold">RAW INPUT DETECTED:</p>
+              <p className="truncate text-text-primary/70 mt-1">S8UL Esports | Placement: 1 | Kills: 14</p>
+              <p className="text-signal-cyan font-semibold mt-2">Parsed into 3 columns clean.</p>
+            </div>
+          </div>
+
+          {/* Panel 3: RBAC Roles */}
+          <div className="telemetry-panel p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
+                <span className="telemetry-channel">WORKSPACE.ROLES</span>
+                <Lock size={12} className="text-text-muted" />
+              </div>
+              <h3 className="font-display font-bold text-lg mb-2">Role Permission Matrix</h3>
+              <p className="text-xs text-text-muted leading-relaxed mb-4">
+                Enforces strict access controls across team members: Owners, Analysts, and Observers.
+              </p>
+            </div>
+            <div className="telemetry-panel-raised p-3 font-mono text-[11px] space-y-1 text-text-muted">
+              <div className="flex justify-between">
+                <span>OWNER</span>
+                <span className="text-signal-orange">FULL ADMIN</span>
+              </div>
+              <div className="flex justify-between">
+                <span>ANALYST</span>
+                <span className="text-signal-cyan">DATA ENTRY</span>
+              </div>
+              <div className="flex justify-between">
+                <span>OBSERVER</span>
+                <span className="text-text-muted">READ ONLY</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel 4: Player Telemetry */}
+          <div className="telemetry-panel p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
+                <span className="telemetry-channel">LB.KILLS</span>
+                <span className="font-mono text-[10px] text-signal-cyan">TELEMETRY</span>
+              </div>
+              <h3 className="font-display font-bold text-lg mb-2">Player Leaderboard Engine</h3>
+              <p className="text-xs text-text-muted leading-relaxed mb-4">
+                Per-player kill tracking, damage averages, and accuracy metrics updated per match.
+              </p>
+            </div>
+            <div className="telemetry-panel-raised p-3 font-mono text-[11px] space-y-1">
+              <div className="flex justify-between text-text-muted">
+                <span>1. Learn (GodLike)</span>
+                <span className="text-signal-orange font-bold">28 KILLS</span>
+              </div>
+              <div className="flex justify-between text-text-muted">
+                <span>2. Neutrino (Vitality)</span>
+                <span className="text-signal-orange font-bold">24 KILLS</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel 5: Custom Scoring */}
+          <div className="telemetry-panel p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
+                <span className="telemetry-channel">SCORING.CONFIG</span>
+                <Zap size={12} className="text-signal-orange" />
+              </div>
+              <h3 className="font-display font-bold text-lg mb-2">Dynamic Scoring Matrix</h3>
+              <p className="text-xs text-text-muted leading-relaxed mb-4">
+                Custom points tables per tournament format. Adjust placement rules and point values live.
+              </p>
+            </div>
+            <div className="telemetry-panel-raised p-3 font-mono text-[11px] flex justify-between text-text-muted">
+              <span>#1 = 15 PTS</span>
+              <span>#2 = 12 PTS</span>
+              <span className="text-signal-orange">KILL = 1 PT</span>
+            </div>
+          </div>
+
+          {/* Panel 6: Fuzzy Dedup */}
+          <div className="telemetry-panel p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
+                <span className="telemetry-channel">IMPORT.WIZARD</span>
+                <Sparkles size={12} className="text-signal-cyan" />
+              </div>
+              <h3 className="font-display font-bold text-lg mb-2">Levenshtein Deduplication</h3>
+              <p className="text-xs text-text-muted leading-relaxed mb-4">
+                Fuzzy similarity matching prevents duplicate team and player registrations.
+              </p>
+            </div>
+            <div className="telemetry-panel-raised p-3 font-mono text-[10px] space-y-1 text-text-muted">
+              <div className="flex justify-between">
+                <span>"GodLike_BR" → GodLike Esports</span>
+                <span className="text-signal-cyan font-bold">96% MATCH</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Monospace Footer ── */}
+      <footer className="border-t border-line py-8 px-6 bg-void">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-text-muted">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-signal-orange" />
+            <span className="text-text-primary font-bold">AXIS BR RESULTS ENGINE</span>
+          </div>
+          <span>POWERED BY AXIS STAT ENGINE · NOVA TECHNOLOGIES</span>
+          <span>© 2026 NOVA TECHNOLOGIES · AXIS.ENGINE.V1</span>
         </div>
       </footer>
     </main>
   );
 }
 
-const features = [
-  {
-    icon: Trophy,
-    title: "Live Team Standings",
-    desc: "Standings recompute instantly as you enter match results. Rank change indicators, day-by-day breakdown, placement points + kill points.",
-  },
-  {
-    icon: ClipboardList,
-    title: "Smart Data Entry",
-    desc: "Manual row entry or copy-paste from Excel/Google Sheets. The auto-parser detects columns and delimiters heuristically.",
-  },
-  {
-    icon: Users,
-    title: "Team Workspaces",
-    desc: "Create shared workspaces, invite analysts and observers. Role-aware UI — Observers see live data but cannot modify anything.",
-  },
-  {
-    icon: BarChart3,
-    title: "Player Leaderboard",
-    desc: "Per-player kill leaderboard with total kills, avg damage, avg accuracy, kills per match — computed dynamically.",
-  },
-  {
-    icon: Zap,
-    title: "Paste Import Wizard",
-    desc: "Paste tabular data directly from spreadsheets. Levenshtein similarity matching deduplicates players and teams against the global registry.",
-  },
-  {
-    icon: Globe,
-    title: "Custom Scoring Engine",
-    desc: "Fully custom points-per-kill and placement points table per tournament. Edit anytime and standings recompute live.",
-  },
+const heroStandings = [
+  { rank: 1, team: "GodLike Esports", pts: 142, place: 48, elims: 94, trend: 2 },
+  { rank: 2, team: "Team Vitality", pts: 128, place: 42, elims: 86, trend: -1 },
+  { rank: 3, team: "S8UL Esports", pts: 115, place: 35, elims: 80, trend: 1 },
+  { rank: 4, team: "Team Secret", pts: 98, place: 30, elims: 68, trend: 0 },
+  { rank: 5, team: "TDM Gaming", pts: 84, place: 24, elims: 60, trend: -2 },
 ];
-
-function FeatureCard({
-  icon: Icon,
-  title,
-  desc,
-}: {
-  icon: React.ElementType;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <div className="rounded-xl border border-line/60 bg-panel/60 p-6 backdrop-blur-sm hover:border-accent/30 transition-colors group">
-      <div className="mb-4 grid size-10 place-items-center rounded-lg bg-accent/10 text-accent group-hover:bg-accent/15 transition-colors">
-        <Icon size={20} />
-      </div>
-      <h3 className="font-semibold text-foreground mb-2">{title}</h3>
-      <p className="text-sm text-muted leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-function RolePill({
-  role,
-  desc,
-  color,
-}: {
-  role: string;
-  desc: string;
-  color: "accent" | "success" | "muted";
-}) {
-  const colorClass =
-    color === "accent"
-      ? "text-accent border-accent/30 bg-accent/10"
-      : color === "success"
-        ? "text-success border-success/30 bg-success/10"
-        : "text-muted border-line/50 bg-white/5";
-
-  return (
-    <div
-      className={`flex items-center gap-2 rounded-full border px-4 py-2 ${colorClass}`}
-    >
-      <span className="font-bold">{role}</span>
-      <span className="opacity-70">—</span>
-      <span>{desc}</span>
-    </div>
-  );
-}
