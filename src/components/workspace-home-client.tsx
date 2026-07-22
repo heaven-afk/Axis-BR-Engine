@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Plus,
   X,
@@ -10,6 +11,8 @@ import {
   Calendar,
   Gamepad2,
   Layers3,
+  Users,
+  UserPlus,
 } from "lucide-react";
 import { createTournament } from "@/lib/actions/tournament";
 
@@ -89,14 +92,24 @@ export function WorkspaceHomeClient({
           </p>
         </div>
 
-        {canEdit && (
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-black hover:bg-accent/90 transition shadow-[0_0_16px_rgba(60,190,170,0.25)]"
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/dashboard/workspace/${workspaceId}/members`}
+            className="inline-flex items-center gap-2 rounded-lg border border-line/70 bg-panel/60 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-panel hover:border-accent/40 transition"
           >
-            <Plus size={16} /> New Tournament
-          </button>
-        )}
+            <Users size={16} className="text-purple-400" />
+            {role === "owner" ? "Manage / Invite Members" : "View Members"}
+          </Link>
+
+          {canEdit && (
+            <button
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-black hover:bg-accent/90 transition shadow-[0_0_16px_rgba(60,190,170,0.25)]"
+            >
+              <Plus size={16} /> New Tournament
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tournament Grid */}

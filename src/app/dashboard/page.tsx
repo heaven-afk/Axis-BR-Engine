@@ -155,11 +155,16 @@ function WorkspaceCard({
         {isTeam ? "Team workspace" : "Personal workspace"} · {role}
       </p>
 
-      {/* Tournament count */}
-      <div className="flex items-center gap-2 text-xs text-muted mt-auto">
-        <Trophy size={13} />
-        <span>
-          {tournaments.length} tournament{tournaments.length !== 1 ? "s" : ""}
+      {/* Tournament count & Members link */}
+      <div className="flex items-center justify-between text-xs text-muted mt-auto pt-2">
+        <div className="flex items-center gap-1.5">
+          <Trophy size={13} />
+          <span>
+            {tournaments.length} tournament{tournaments.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <span className="flex items-center gap-1 text-[11px] font-semibold text-purple-400 group-hover:text-purple-300 transition">
+          <Users size={12} /> Members
         </span>
       </div>
 
