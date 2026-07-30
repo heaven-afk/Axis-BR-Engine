@@ -26,10 +26,15 @@ export default async function MembersPage({
 
   const { workspace, role } = data;
 
-  const members = workspace.members.map((m: { id: string; userId: string; role: string; joinedAt: Date; invitedBy: string | null }) => ({
+  const members = workspace.members.map((m) => ({
     id: m.id,
     userId: m.userId,
+    name: m.name,
+    email: m.email,
+    avatarUrl: m.avatarUrl,
     role: m.role,
+    status: m.status,
+    inviteToken: m.inviteToken,
     joinedAt: m.joinedAt,
     invitedBy: m.invitedBy,
   }));

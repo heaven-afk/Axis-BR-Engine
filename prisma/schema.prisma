@@ -43,20 +43,25 @@ model Workspace {
 }
 
 model WorkspaceMember {
-  id          String        @id @default(cuid())
-  workspaceId String
-  userId      String
-  role        WorkspaceRole
-  invitedBy   String?
-  joinedAt    DateTime      @default(now())
-  inviteToken String?       @unique
+  id           String        @id @default(cuid())
+  workspaceId  String
+  userId       String?
+  email        String?
+  role         WorkspaceRole
+  invitedBy    String?
+  joinedAt     DateTime      @default(now())
+  inviteToken  String?       @unique
   inviteExpiry DateTime?
-  status      String        @default("active")
-  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  status       String        @default("active")
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, userId])
   @@index([userId])
+  @@index([workspaceId])
+  @@index([email])
 }
+
+
 
 model Tournament {
   id             String            @id @default(cuid())

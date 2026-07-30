@@ -13,13 +13,23 @@ import {
   Loader2,
   Check,
   AlertCircle,
+  Mail,
+  Copy,
+  Link2,
+  Clock,
+  Send,
 } from "lucide-react";
 import { inviteMember, removeMember, updateMemberRole } from "@/lib/actions/workspace";
 
 interface Member {
   id: string;
-  userId: string;
+  userId: string | null;
+  name: string;
+  email: string | null;
+  avatarUrl: string | null;
   role: string;
+  status: string;
+  inviteToken: string | null;
   joinedAt: Date;
   invitedBy: string | null;
 }
@@ -43,303 +53,523 @@ export function MembersClient({
 }: MembersClientProps) {
   const [isPending, startTransition] = useTransition();
   const [members, setMembers] = useState(initialMembers);
+  const [filterTab, setFilterTab] = useState<"all" | "active" | "pending">("all");
+  
+  // Invite modal state
   const [showInvite, setShowInvite] = useState(false);
-  const [inviteUserId, setInviteUserId] = useState("");
+  const [inviteTab, setInviteTab] = useState<"email" | "link">("email");
+  const [inviteInput, setInviteInput] = useState("");
   const [inviteRole, setInviteRole] = useState<"analyst" | "observer">("analyst");
   const [inviteError, setInviteError] = useState("");
-  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteResult, setInviteResult] = useState<{
+    success: boolean;
+    isPending?: boolean;
+    email?: string;
+    inviteToken?: string | null;
+  } | null>(null);
+  const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   const isOwner = currentUserRole === "owner";
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
     setInviteError("");
-    setInviteSuccess(false);
+    setInviteResult(null);
+
+    const cleanInput = inviteInput.trim();
+    if (!cleanInput) return;
 
     startTransition(async () => {
       try {
-        const member = await inviteMember(workspaceId, inviteUserId.trim(), inviteRole);
+        const res = await inviteMember(workspaceId, cleanInput, inviteRole);
+        
+        // Update local members state
+        const newMember: Member = {
+          id: res.member.id,
+          userId: res.member.userId ?? null,
+          name: cleanInput.includes("@") ? cleanInput : res.member.userId || cleanInput,
+          email: res.member.email ?? (cleanInput.includes("@") ? cleanInput : null),
+          avatarUrl: null,
+          role: res.member.role,
+          status: res.member.status,
+          inviteToken: res.member.inviteToken ?? null,
+          joinedAt: res.member.joinedAt,
+          invitedBy: res.member.invitedBy ?? null,
+        };
+
         setMembers((prev) => [
-          ...prev.filter((m) => m.userId !== member.userId),
-          {
-            id: member.id,
-            userId: member.userId,
-            role: member.role,
-            joinedAt: member.joinedAt,
-            invitedBy: member.invitedBy ?? null,
-          },
+          ...prev.filter((m) => m.id !== newMember.id),
+          newMember,
         ]);
-        setInviteSuccess(true);
-        setInviteUserId("");
-      } catch (err) {
-        setInviteError(String(err));
+
+        setInviteResult({
+          success: true,
+          isPending: res.isPending,
+          email: cleanInput.includes("@") ? cleanInput : undefined,
+          inviteToken: res.inviteToken,
+        });
+
+        setInviteInput("");
+      } catch (err: unknown) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        setInviteError(errorMsg);
       }
     });
   };
 
-  const handleRemove = (userId: string) => {
+  const handleRemove = (memberId: string) => {
     startTransition(async () => {
-      await removeMember(workspaceId, userId);
-      setMembers((prev) => prev.filter((m) => m.userId !== userId));
+      await removeMember(workspaceId, memberId);
+      setMembers((prev) => prev.filter((m) => m.id !== memberId));
     });
   };
 
-  const handleRoleChange = (userId: string, role: "analyst" | "observer") => {
+  const handleRoleChange = (memberId: string, role: "analyst" | "observer") => {
     startTransition(async () => {
-      await updateMemberRole(workspaceId, userId, role);
+      await updateMemberRole(workspaceId, memberId, role);
       setMembers((prev) =>
-        prev.map((m) => (m.userId === userId ? { ...m, role } : m))
+        prev.map((m) => (m.id === memberId ? { ...m, role } : m))
       );
     });
   };
 
+  const copyInviteUrl = (token: string) => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const url = `${origin}/invite/${token}`;
+    navigator.clipboard.writeText(url);
+    setCopiedToken(token);
+    setTimeout(() => setCopiedToken(null), 2500);
+  };
+
+  const filteredMembers = members.filter((m) => {
+    if (filterTab === "active") return m.status === "active";
+    if (filterTab === "pending") return m.status === "pending";
+    return true;
+  });
+
+  const activeCount = members.filter((m) => m.status === "active").length;
+  const pendingCount = members.filter((m) => m.status === "pending").length;
+
   return (
-    <div className="px-6 py-8 max-w-4xl mx-auto">
+    <div className="px-6 py-8 max-w-5xl mx-auto space-y-8 font-sans">
       {/* Back link */}
       <Link
         href={`/dashboard/workspace/${workspaceId}`}
-        className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition mb-6"
+        className="inline-flex items-center gap-1.5 text-xs font-mono text-text-muted hover:text-text-primary transition"
       >
-        <ArrowLeft size={13} /> Back to {workspaceName}
+        <ArrowLeft size={13} /> BACK TO {workspaceName.toUpperCase()}
       </Link>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted mb-1">
-            Members
-          </p>
-          <h1 className="text-2xl font-bold text-foreground">{workspaceName}</h1>
-          <p className="text-sm text-muted mt-1">
-            {members.length} member{members.length !== 1 ? "s" : ""} ·{" "}
-            <span className="capitalize text-accent">{currentUserRole}</span>
+          <div className="flex items-center gap-2 font-mono text-[11px] text-signal-orange uppercase tracking-[0.2em] mb-1">
+            <span className="size-2 rounded-full bg-signal-orange" />
+            WORKSPACE // COLLABORATORS
+          </div>
+          <h1 className="font-display text-3xl font-bold text-text-primary uppercase tracking-tight">
+            {workspaceName}
+          </h1>
+          <p className="text-text-muted text-xs font-mono mt-1">
+            {activeCount} ACTIVE MEMBER{activeCount !== 1 ? "S" : ""}
+            {pendingCount > 0 && ` · ${pendingCount} PENDING INVITATIONS`}
+            {" · "}
+            <span className="capitalize text-signal-cyan">{currentUserRole}</span>
           </p>
         </div>
 
         {isOwner && (
           <button
-            onClick={() => setShowInvite(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-bold text-black hover:bg-accent/90 transition"
+            onClick={() => {
+              setShowInvite(true);
+              setInviteError("");
+              setInviteResult(null);
+            }}
+            className="inline-flex items-center gap-2 rounded-sm bg-signal-orange px-5 py-2.5 font-mono text-xs font-bold text-black uppercase tracking-wider hover:bg-signal-orange/90 transition shadow-panel-glow"
           >
             <UserPlus size={15} /> Invite Member
           </button>
         )}
       </div>
 
-      {/* Members table */}
-      <div className="rounded-xl border border-line/60 bg-panel/50 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-[#12161d] border-b border-line/50">
-            <tr>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted">
-                User ID
-              </th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted">
-                Role
-              </th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted">
-                Joined
-              </th>
-              {isOwner && (
-                <th className="px-5 py-3 text-center text-xs font-semibold uppercase tracking-wider text-muted w-24">
-                  Actions
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => {
-              const isMe = member.userId === currentUserId;
-              const isOwnerRow = member.userId === ownerUserId;
-              const joined = new Date(member.joinedAt).toLocaleDateString(
-                "en-US",
-                { month: "short", day: "numeric", year: "numeric" }
-              );
+      {/* Filter Tabs */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 font-mono text-xs">
+          <button
+            onClick={() => setFilterTab("all")}
+            className={`px-3 py-1.5 rounded-sm border uppercase transition ${
+              filterTab === "all"
+                ? "bg-panel-raised border-signal-orange text-signal-orange font-bold"
+                : "border-line text-text-muted hover:text-text-primary"
+            }`}
+          >
+            ALL ({members.length})
+          </button>
+          <button
+            onClick={() => setFilterTab("active")}
+            className={`px-3 py-1.5 rounded-sm border uppercase transition ${
+              filterTab === "active"
+                ? "bg-panel-raised border-signal-cyan text-signal-cyan font-bold"
+                : "border-line text-text-muted hover:text-text-primary"
+            }`}
+          >
+            ACTIVE ({activeCount})
+          </button>
+          {pendingCount > 0 && (
+            <button
+              onClick={() => setFilterTab("pending")}
+              className={`px-3 py-1.5 rounded-sm border uppercase transition ${
+                filterTab === "pending"
+                  ? "bg-panel-raised border-yellow-400 text-yellow-400 font-bold"
+                  : "border-line text-text-muted hover:text-text-primary"
+              }`}
+            >
+              PENDING ({pendingCount})
+            </button>
+          )}
+        </div>
+      </div>
 
-              return (
-                <tr
-                  key={member.id}
-                  className="border-b border-line/30 last:border-0 hover:bg-white/3 transition"
-                >
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="grid size-8 place-items-center rounded-full bg-accent/10 text-xs font-bold text-accent">
-                        {member.userId.slice(5, 7).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-mono text-xs text-foreground truncate max-w-[180px]">
-                          {member.userId}
-                        </p>
-                        {isMe && (
-                          <p className="text-[10px] text-accent mt-0.5">
-                            You
-                          </p>
+      {/* Members table */}
+      <div className="telemetry-panel overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs font-mono">
+            <thead>
+              <tr className="border-b border-line text-left text-text-muted bg-panel-raised/50">
+                <th className="px-5 py-3 text-[10px] uppercase tracking-wider">COLLABORATOR</th>
+                <th className="px-5 py-3 text-[10px] uppercase tracking-wider">EMAIL / ID</th>
+                <th className="px-5 py-3 text-[10px] uppercase tracking-wider">ROLE</th>
+                <th className="px-5 py-3 text-[10px] uppercase tracking-wider">STATUS</th>
+                <th className="px-5 py-3 text-[10px] uppercase tracking-wider">JOINED</th>
+                {isOwner && (
+                  <th className="px-5 py-3 text-center text-[10px] uppercase tracking-wider w-32">ACTIONS</th>
+                )}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/40">
+              {filteredMembers.map((member) => {
+                const isMe = member.userId === currentUserId;
+                const isOwnerRow = member.userId === ownerUserId;
+                const isPendingMember = member.status === "pending";
+                const joined = new Date(member.joinedAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                });
+
+                return (
+                  <tr key={member.id} className="hover:bg-panel-raised/40 transition">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        {member.avatarUrl ? (
+                          // eslint-disable-next-next-line @next/next/no-img-element
+                          <img
+                            src={member.avatarUrl}
+                            alt={member.name}
+                            className="size-8 rounded-full border border-line object-cover"
+                          />
+                        ) : (
+                          <div className="grid size-8 place-items-center rounded-full bg-signal-orange/15 text-signal-orange border border-signal-orange/30 font-bold text-xs">
+                            {member.name.charAt(0).toUpperCase()}
+                          </div>
                         )}
+                        <div>
+                          <p className="font-bold text-text-primary text-xs flex items-center gap-1.5">
+                            {member.name}
+                            {isMe && (
+                              <span className="text-[9px] bg-signal-orange/20 text-signal-orange px-1.5 py-0.5 rounded uppercase font-bold">
+                                YOU
+                              </span>
+                            )}
+                          </p>
+                          {member.email && (
+                            <p className="text-[10px] text-text-muted truncate max-w-[200px]">
+                              {member.email}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    {isOwner && !isOwnerRow ? (
-                      <select
-                        value={member.role}
-                        onChange={(e) =>
-                          handleRoleChange(
-                            member.userId,
-                            e.target.value as "analyst" | "observer"
-                          )
-                        }
-                        disabled={isPending}
-                        className="rounded border border-line/60 bg-black/40 px-2 py-1 text-xs text-foreground outline-none focus:border-accent"
-                      >
-                        <option value="analyst">Analyst</option>
-                        <option value="observer">Observer</option>
-                      </select>
-                    ) : (
-                      <RoleBadge role={member.role} />
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5 text-xs text-muted">{joined}</td>
-                  {isOwner && (
-                    <td className="px-5 py-3.5 text-center">
-                      {!isOwnerRow && (
-                        <button
-                          onClick={() => handleRemove(member.userId)}
-                          disabled={isPending}
-                          className="text-danger hover:text-red-400 transition disabled:opacity-40"
-                          title="Remove member"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                    </td>
+
+                    <td className="px-5 py-3.5 text-text-muted font-mono text-[11px]">
+                      {member.email ? (
+                        <span className="text-text-primary">{member.email}</span>
+                      ) : member.userId ? (
+                        <span className="text-text-muted/80">{member.userId}</span>
+                      ) : (
+                        <span className="text-yellow-400/80">Pending Email</span>
                       )}
                     </td>
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+
+                    <td className="px-5 py-3.5">
+                      {isOwner && !isOwnerRow && !isPendingMember ? (
+                        <select
+                          value={member.role}
+                          onChange={(e) =>
+                            handleRoleChange(
+                              member.id,
+                              e.target.value as "analyst" | "observer"
+                            )
+                          }
+                          disabled={isPending}
+                          className="rounded border border-line bg-void px-2 py-1 text-xs text-text-primary outline-none focus:border-signal-orange"
+                        >
+                          <option value="analyst">Analyst</option>
+                          <option value="observer">Observer</option>
+                        </select>
+                      ) : (
+                        <RoleBadge role={member.role} />
+                      )}
+                    </td>
+
+                    <td className="px-5 py-3.5">
+                      {isPendingMember ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-2 py-0.5 rounded-full uppercase">
+                          <Clock size={10} /> Pending
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-signal-cyan bg-signal-cyan/10 border border-signal-cyan/30 px-2 py-0.5 rounded-full uppercase">
+                          <Check size={10} /> Active
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="px-5 py-3.5 text-text-muted text-[11px]">{joined}</td>
+
+                    {isOwner && (
+                      <td className="px-5 py-3.5 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {isPendingMember && member.inviteToken && (
+                            <button
+                              onClick={() => copyInviteUrl(member.inviteToken!)}
+                              className="text-signal-cyan hover:text-white p-1 rounded transition"
+                              title="Copy invitation link"
+                            >
+                              {copiedToken === member.inviteToken ? (
+                                <Check size={14} className="text-signal-cyan" />
+                              ) : (
+                                <Copy size={14} />
+                              )}
+                            </button>
+                          )}
+                          {!isOwnerRow && (
+                            <button
+                              onClick={() => handleRemove(member.id)}
+                              disabled={isPending}
+                              className="text-signal-red hover:text-red-400 p-1 rounded transition disabled:opacity-40"
+                              title={isPendingMember ? "Revoke invitation" : "Remove member"}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Roles explainer */}
-      <div className="mt-6 grid sm:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-3 gap-4">
         <RoleCard
           icon={<Crown size={16} className="text-yellow-400" />}
           title="Owner"
-          desc="Full control. Manage members, create/edit tournaments, enter all data."
+          desc="Full workspace control. Manage members, create tournaments, edit match telemetry."
           color="yellow"
         />
         <RoleCard
-          icon={<BarChart3 size={16} className="text-accent" />}
+          icon={<BarChart3 size={16} className="text-signal-orange" />}
           title="Analyst"
-          desc="Create tournaments, enter match data, edit scoring config."
+          desc="Create tournaments, submit delimited match logs, edit point tables."
           color="accent"
         />
         <RoleCard
-          icon={<Eye size={16} className="text-muted" />}
+          icon={<Eye size={16} className="text-signal-cyan" />}
           title="Observer"
-          desc="Read-only access to all workspace data including live standings."
-          color="muted"
+          desc="Read-only access to live standings, telemetry readouts, and leaderboards."
+          color="cyan"
         />
       </div>
 
-      {/* Invite Modal */}
+      {/* Modern Invite Modal */}
       {showInvite && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-line/70 bg-[#12161d] p-6 shadow-[0_0_40px_rgba(60,190,170,0.08)]">
-            <div className="flex items-center justify-between mb-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <div className="w-full max-w-lg rounded-xl border border-line bg-panel p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-line pb-4">
               <div>
-                <h2 className="text-base font-bold">Invite Team Member</h2>
-                <p className="text-xs text-muted mt-0.5">
-                  Add a collaborator using their Clerk user ID
+                <h2 className="text-lg font-bold font-display uppercase tracking-wide">
+                  Invite Workspace Collaborator
+                </h2>
+                <p className="text-xs text-text-muted font-mono mt-0.5">
+                  Invite by email address or share direct workspace link
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setShowInvite(false);
-                  setInviteError("");
-                  setInviteSuccess(false);
-                }}
-                className="text-muted hover:text-foreground"
+                onClick={() => setShowInvite(false)}
+                className="text-text-muted hover:text-text-primary p-1 rounded"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div>
-                <label className="text-xs text-muted block mb-1.5">
-                  Clerk User ID
-                </label>
-                <input
-                  required
-                  autoFocus
-                  value={inviteUserId}
-                  onChange={(e) => setInviteUserId(e.target.value)}
-                  placeholder="user_2abc..."
-                  className="w-full h-10 rounded-md bg-black/40 border border-line/70 px-3 text-sm font-mono focus:border-accent outline-none transition"
-                />
-                <p className="text-[10px] text-muted mt-1">
-                  They can find their user ID in their Clerk profile.
+            {/* Modal Tabs */}
+            <div className="flex border-b border-line font-mono text-xs">
+              <button
+                onClick={() => setInviteTab("email")}
+                className={`flex-1 py-2.5 flex items-center justify-center gap-2 border-b-2 font-bold uppercase transition ${
+                  inviteTab === "email"
+                    ? "border-signal-orange text-signal-orange"
+                    : "border-transparent text-text-muted hover:text-text-primary"
+                }`}
+              >
+                <Mail size={14} /> Send Email / ID Invite
+              </button>
+              <button
+                onClick={() => setInviteTab("link")}
+                className={`flex-1 py-2.5 flex items-center justify-center gap-2 border-b-2 font-bold uppercase transition ${
+                  inviteTab === "link"
+                    ? "border-signal-cyan text-signal-cyan"
+                    : "border-transparent text-text-muted hover:text-text-primary"
+                }`}
+              >
+                <Link2 size={14} /> Direct Share Link
+              </button>
+            </div>
+
+            {inviteTab === "email" ? (
+              <form onSubmit={handleInvite} className="space-y-4">
+                <div>
+                  <label className="text-xs font-mono uppercase text-text-muted block mb-1.5">
+                    Email Address or Clerk User ID
+                  </label>
+                  <input
+                    required
+                    autoFocus
+                    type="text"
+                    value={inviteInput}
+                    onChange={(e) => setInviteInput(e.target.value)}
+                    placeholder="e.g. analyst@esports.com or user_2abc..."
+                    className="w-full h-10 rounded-md bg-void border border-line px-3 text-sm font-mono text-text-primary focus:border-signal-orange outline-none transition"
+                  />
+                  <p className="text-[10px] text-text-muted font-mono mt-1">
+                    Enter an email address to send an invite or add existing Clerk user directly.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-mono uppercase text-text-muted block mb-1.5">
+                    Assign Role
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(["analyst", "observer"] as const).map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setInviteRole(r)}
+                        className={`h-10 rounded-md border text-xs font-mono font-bold uppercase transition ${
+                          inviteRole === r
+                            ? "border-signal-orange bg-signal-orange/10 text-signal-orange"
+                            : "border-line text-text-muted hover:text-text-primary"
+                        }`}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {inviteError && (
+                  <div className="flex items-center gap-2 text-xs font-mono text-signal-red bg-signal-red/10 border border-signal-red/30 p-3 rounded-md">
+                    <AlertCircle size={14} className="shrink-0" />
+                    {inviteError}
+                  </div>
+                )}
+
+                {inviteResult?.success && (
+                  <div className="space-y-3 bg-signal-cyan/10 border border-signal-cyan/30 p-3 rounded-md font-mono text-xs text-signal-cyan">
+                    <div className="flex items-center gap-2 font-bold">
+                      <Check size={14} />
+                      {inviteResult.isPending
+                        ? `Invitation token generated for ${inviteResult.email}!`
+                        : "Member added successfully to workspace!"}
+                    </div>
+
+                    {inviteResult.isPending && inviteResult.inviteToken && (
+                      <div className="pt-2 border-t border-signal-cyan/20 space-y-2 text-text-primary">
+                        <p className="text-[11px]">Share this invitation link with the recipient:</p>
+                        <div className="flex items-center gap-2">
+                          <input
+                            readOnly
+                            value={`${typeof window !== "undefined" ? window.location.origin : ""}/invite/${inviteResult.inviteToken}`}
+                            className="flex-1 h-8 rounded bg-void border border-line px-2 text-[10px] font-mono select-all outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => copyInviteUrl(inviteResult.inviteToken!)}
+                            className="h-8 px-3 rounded bg-signal-cyan text-black font-bold text-[11px] flex items-center gap-1 hover:bg-signal-cyan/90 transition"
+                          >
+                            <Copy size={12} />
+                            {copiedToken === inviteResult.inviteToken ? "COPIED" : "COPY"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-2 border-t border-line">
+                  <button
+                    type="button"
+                    onClick={() => setShowInvite(false)}
+                    className="flex-1 h-10 rounded-md border border-line font-mono text-xs text-text-muted hover:text-text-primary transition uppercase font-semibold"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="flex-1 h-10 rounded-md bg-signal-orange text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-signal-orange/90 transition disabled:opacity-60 shadow-panel-glow"
+                  >
+                    {isPending ? (
+                      <Loader2 size={15} className="animate-spin" />
+                    ) : (
+                      <Send size={15} />
+                    )}
+                    Send Invite
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* Tab 2: Direct Shareable Link */
+              <div className="space-y-4 font-mono text-xs">
+                <p className="text-text-muted leading-relaxed">
+                  Anyone with an active invitation link can join <strong className="text-text-primary">{workspaceName}</strong> as an analyst or observer.
                 </p>
-              </div>
 
-              <div>
-                <label className="text-xs text-muted block mb-1.5">
-                  Assign Role
-                </label>
-                <div className="flex gap-3">
-                  {(["analyst", "observer"] as const).map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setInviteRole(r)}
-                      className={`flex-1 h-10 rounded-md border text-sm font-semibold capitalize transition ${
-                        inviteRole === r
-                          ? "border-accent bg-accent/10 text-accent"
-                          : "border-line/60 text-muted hover:text-foreground"
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
+                <div className="telemetry-panel p-4 space-y-3">
+                  <label className="text-[11px] text-signal-cyan font-bold uppercase tracking-wider block">
+                    GENERAL INVITATION LINK (7 DAYS EXPR)
+                  </label>
+                  <p className="text-text-muted text-[11px]">
+                    To generate a unique single-use link for an analyst, enter their email address in the Email Invite tab.
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-2 border-t border-line">
+                  <button
+                    type="button"
+                    onClick={() => setShowInvite(false)}
+                    className="w-full h-10 rounded-md border border-line font-mono text-xs text-text-muted hover:text-text-primary transition uppercase font-semibold"
+                  >
+                    Done
+                  </button>
                 </div>
               </div>
-
-              {inviteError && (
-                <div className="flex items-center gap-2 text-xs text-danger">
-                  <AlertCircle size={13} />
-                  {inviteError}
-                </div>
-              )}
-              {inviteSuccess && (
-                <div className="flex items-center gap-2 text-xs text-success">
-                  <Check size={13} />
-                  Member added successfully!
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowInvite(false)}
-                  className="flex-1 h-10 rounded-md border border-line/60 text-sm text-muted hover:text-foreground transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="flex-1 h-10 rounded-md bg-accent text-black font-bold text-sm flex items-center justify-center gap-2 hover:bg-accent/90 transition disabled:opacity-60"
-                >
-                  {isPending ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    <UserPlus size={15} />
-                  )}
-                  Invite
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
       )}
@@ -350,14 +580,14 @@ export function MembersClient({
 function RoleBadge({ role }: { role: string }) {
   const classes =
     role === "owner"
-      ? "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
+      ? "text-yellow-400 bg-yellow-400/10 border-yellow-400/30"
       : role === "analyst"
-        ? "text-accent bg-accent/10 border-accent/20"
-        : "text-muted bg-white/5 border-line/40";
+        ? "text-signal-orange bg-signal-orange/10 border-signal-orange/30"
+        : "text-signal-cyan bg-signal-cyan/10 border-signal-cyan/30";
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${classes}`}
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-mono font-bold capitalize ${classes}`}
     >
       {role === "owner" && <Crown size={10} />}
       {role === "analyst" && <BarChart3 size={10} />}
@@ -376,22 +606,22 @@ function RoleCard({
   icon: React.ReactNode;
   title: string;
   desc: string;
-  color: "yellow" | "accent" | "muted";
+  color: "yellow" | "accent" | "cyan";
 }) {
   const border =
     color === "yellow"
       ? "border-yellow-400/20"
       : color === "accent"
-        ? "border-accent/20"
-        : "border-line/40";
+        ? "border-signal-orange/20"
+        : "border-signal-cyan/20";
 
   return (
-    <div className={`rounded-lg border ${border} bg-panel/40 p-4`}>
+    <div className={`telemetry-panel p-4 border ${border}`}>
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <span className="text-sm font-semibold">{title}</span>
+        <span className="font-display font-bold uppercase text-sm">{title}</span>
       </div>
-      <p className="text-xs text-muted leading-relaxed">{desc}</p>
+      <p className="font-mono text-xs text-text-muted leading-relaxed">{desc}</p>
     </div>
   );
 }
