@@ -153,3 +153,157 @@ body {
   color: #FF7A3D !important;
 }
 
+/* ── User Profile & Account Modal High-Contrast Dark Styling ── */
+.cl-userProfile-root,
+.cl-userProfile-root * {
+  color: #E8EAED;
+}
+
+.cl-userProfile-root .cl-card {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.85) !important;
+}
+
+.cl-navbar {
+  background-color: var(--bg-void) !important;
+  border-right: 1px solid var(--line) !important;
+}
+
+.cl-navbarTitle,
+.cl-navbarTitleText {
+  color: #9AA5B1 !important;
+  font-weight: 700 !important;
+  font-family: var(--font-jetbrains-mono), monospace !important;
+  font-size: 0.6875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+}
+
+.cl-navbarButton {
+  color: #9AA5B1 !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-navbarButton:hover {
+  color: #E8EAED !important;
+  background-color: var(--bg-panel-raised) !important;
+}
+
+.cl-navbarButton[data-active="true"],
+.cl-navbarButton.cl-active {
+  color: var(--signal-orange) !important;
+  background-color: var(--bg-panel-raised) !important;
+  font-weight: 700 !important;
+}
+
+.cl-navbarButtonIcon {
+  color: inherit !important;
+}
+
+.cl-headerTitle {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+}
+
+.cl-headerSubtitle {
+  color: #9AA5B1 !important;
+  font-size: 0.8125rem !important;
+}
+
+.cl-profileSectionTitle,
+.cl-profileSectionTitleText {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+}
+
+.cl-profileSectionSubtitle,
+.cl-profileSectionSubtitleText {
+  color: #9AA5B1 !important;
+  font-size: 0.75rem !important;
+}
+
+.cl-profileSectionContent,
+.cl-profileSectionItem,
+.cl-profileSectionPrimaryButton {
+  color: #E8EAED !important;
+}
+
+.cl-userPreviewMainIdentifier {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+.cl-userPreviewSecondaryIdentifier {
+  color: #9AA5B1 !important;
+}
+
+.cl-modalCloseButton {
+  color: #9AA5B1 !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-modalCloseButton:hover {
+  color: #FFFFFF !important;
+  background-color: var(--bg-panel-raised) !important;
+}
+
+.cl-badge {
+  background-color: rgba(255, 94, 26, 0.15) !important;
+  color: var(--signal-orange) !important;
+  border: 1px solid rgba(255, 94, 26, 0.3) !important;
+  font-weight: 700 !important;
+}
+
+.cl-accordionTriggerButton {
+  color: #E8EAED !important;
+}
+
+.cl-breadcrumbsItem,
+.cl-breadcrumbsItemLink {
+  color: #9AA5B1 !important;
+}
+
+.cl-breadcrumbsItem[data-active="true"] {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+.cl-profileSectionPrimaryButton {
+  color: var(--signal-orange) !important;
+  font-weight: 700 !important;
+}
+
+.cl-profileSectionPrimaryButton:hover {
+  color: #FF7A3D !important;
+}
+
+.cl-menuButton,
+.cl-selectButton {
+  color: #E8EAED !important;
+  background-color: var(--bg-panel-raised) !important;
+  border: 1px solid var(--line) !important;
+}
+
+.cl-menuList,
+.cl-selectOptionsContainer {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.cl-menuItem {
+  color: #E8EAED !important;
+}
+
+.cl-menuItem:hover {
+  background-color: var(--bg-panel-raised) !important;
+  color: var(--signal-orange) !important;
+}
+
+

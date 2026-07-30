@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
+import { clerkAppearance } from "@/lib/clerk-theme";
 import {
   Shield,
   LayoutDashboard,
@@ -146,8 +147,11 @@ export function DashboardLayoutClient({
         <div className="px-5 py-4 border-t border-line/30 space-y-3">
           <div className="flex items-center gap-3">
             <UserButton
+              userProfileProps={{ appearance: clerkAppearance }}
               appearance={{
+                ...clerkAppearance,
                 elements: {
+                  ...clerkAppearance.elements,
                   avatarBox: "size-8",
                 },
               }}
@@ -163,6 +167,7 @@ export function DashboardLayoutClient({
           </p>
         </div>
       </aside>
+
 
       {/* ── Main content ── */}
       <div className="flex-1 min-w-0 flex flex-col">

@@ -16,9 +16,33 @@ export const clerkAppearance = {
     fontFamily: "var(--font-inter), sans-serif",
   },
   elements: {
-    card: "bg-[#151A1F] border border-[#2A3138] shadow-[0_0_40px_rgba(255,94,26,0.08)] rounded-xl p-6",
-    headerTitle: "hidden",
-    headerSubtitle: "hidden",
+    card: "bg-[#151A1F] border border-[#2A3138] shadow-[0_0_40px_rgba(255,94,26,0.08)] rounded-xl p-6 text-[#E8EAED]",
+    headerTitle: "text-[#E8EAED] font-bold text-xl font-display",
+    headerSubtitle: "text-[#9AA5B1] text-xs font-mono mt-0.5",
+    
+    // User Profile & Account Settings Modal Elements
+    userProfile: "bg-[#151A1F] text-[#E8EAED] border border-[#2A3138] rounded-2xl shadow-2xl overflow-hidden",
+    navbar: "bg-[#0B0E11] border-r border-[#2A3138] p-4",
+    navbarTitle: "text-[#9AA5B1] font-mono text-[11px] font-bold uppercase tracking-wider mb-2",
+    navbarButton: "text-[#9AA5B1] hover:text-[#E8EAED] hover:bg-[#1D2329] rounded-lg transition-all text-xs font-medium px-3 py-2",
+    navbarButtonActive: "bg-[#1D2329] text-[#FF5E1A] font-bold border-l-2 border-[#FF5E1A]",
+    navbarButtonIcon: "text-[#9AA5B1]",
+    
+    profilePage: "bg-[#151A1F] text-[#E8EAED] p-6",
+    profileSection: "border-b border-[#2A3138]/60 pb-6 mb-6",
+    profileSectionTitle: "text-[#E8EAED] font-bold text-sm tracking-wide border-b border-[#2A3138]/40 pb-2 mb-3",
+    profileSectionTitleText: "text-[#E8EAED] font-bold text-sm",
+    profileSectionSubtitleText: "text-[#9AA5B1] text-xs",
+    profileSectionContent: "text-[#E8EAED] font-medium text-xs",
+    profileSectionPrimaryButton: "text-[#FF5E1A] hover:text-[#FF7A3D] font-bold text-xs hover:underline",
+    
+    userPreviewMainIdentifier: "text-[#E8EAED] font-bold text-sm",
+    userPreviewSecondaryIdentifier: "text-[#9AA5B1] text-xs",
+    modalCloseButton: "text-[#9AA5B1] hover:text-[#E8EAED] hover:bg-[#1D2329] rounded-full p-2 transition-colors",
+    badge: "bg-[#FF5E1A]/10 text-[#FF5E1A] border border-[#FF5E1A]/30 font-mono text-[10px] font-bold uppercase tracking-wider rounded px-2 py-0.5",
+    accordionTriggerButton: "text-[#E8EAED] hover:text-[#FF5E1A] transition-colors",
+    
+    // Auth Form & Social Buttons
     socialButtonsBlockButton:
       "bg-[#1D2329] border border-[#2A3138] text-[#E8EAED] hover:bg-[#252D38] hover:border-[#3D4752] transition-all duration-200 shadow-sm font-medium",
     socialButtonsIconButton:
@@ -38,7 +62,9 @@ export const clerkAppearance = {
     identityPreviewText: "text-[#E8EAED] font-medium",
     identityPreviewEditButtonIcon: "text-[#FF5E1A]",
     devModeBadge: "bg-[#FF5E1A]/10 text-[#FF5E1A] border border-[#FF5E1A]/30 font-mono text-[10px] font-semibold uppercase tracking-wider rounded px-2 py-0.5",
-    userButtonPopoverCard: "bg-[#151A1F] border border-[#2A3138] shadow-2xl rounded-xl",
+    
+    // User Button Popover
+    userButtonPopoverCard: "bg-[#151A1F] border border-[#2A3138] shadow-2xl rounded-xl text-[#E8EAED]",
     userButtonPopoverActionButton: "hover:bg-[#1D2329] text-[#E8EAED]",
     userButtonPopoverActionButtonText: "text-[#E8EAED]",
     userButtonPopoverFooter: "border-t border-[#2A3138]",
