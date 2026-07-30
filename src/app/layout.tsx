@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { clerkAppearance } from "@/lib/clerk-theme";
 import "./globals.css";
 
 const sans = Inter({
@@ -39,7 +40,7 @@ export default function RootLayout({
     <html lang="en" className={`${sans.variable} ${mono.variable} ${display.variable}`}>
       <body className="font-sans antialiased bg-void text-text-primary min-h-screen" suppressHydrationWarning>
         {hasClerkKey ? (
-          <ClerkProvider publishableKey={publishableKey}>
+          <ClerkProvider publishableKey={publishableKey} appearance={clerkAppearance}>
             {children}
           </ClerkProvider>
         ) : (
@@ -49,3 +50,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -80,3 +80,76 @@ body {
   background: var(--line);
   border-radius: 2px;
 }
+
+/* ── Clerk High Contrast Dark Mode Enhancements ── */
+.cl-card {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--line) !important;
+}
+
+.cl-formFieldLabel {
+  color: #E8EAED !important;
+  font-weight: 600 !important;
+}
+
+.cl-formFieldInput {
+  background-color: var(--bg-void) !important;
+  color: #FFFFFF !important;
+  border-color: var(--line) !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
+}
+
+.cl-socialButtonsBlockButton,
+.cl-socialButtonsIconButton {
+  background-color: var(--bg-panel-raised) !important;
+  border: 1px solid var(--line) !important;
+  color: #E8EAED !important;
+}
+
+.cl-socialButtonsBlockButton:hover,
+.cl-socialButtonsIconButton:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Ensure Apple social button icon is crisp white in dark theme */
+.cl-socialButtonsBlockButton[data-provider="apple"] img,
+.cl-socialButtonsIconButton[data-provider="apple"] img,
+.cl-providerIcon[alt*="Apple"] {
+  filter: invert(1) brightness(2) !important;
+}
+
+.cl-dividerLine {
+  background-color: var(--line) !important;
+}
+
+.cl-dividerText {
+  color: #9AA5B1 !important;
+}
+
+.cl-formButtonPrimary {
+  background-color: var(--signal-orange) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #E04E0C !important;
+}
+
+.cl-footerActionText {
+  color: #9AA5B1 !important;
+}
+
+.cl-footerActionLink {
+  color: var(--signal-orange) !important;
+}
+
+.cl-footerActionLink:hover {
+  color: #FF7A3D !important;
+}
+

@@ -14,7 +14,7 @@ export async function getUserWorkspaces() {
   }
 
   try {
-    const memberships = await prisma.workspaceMember.findMany({
+    let memberships = await prisma.workspaceMember.findMany({
       where: { userId },
       include: {
         workspace: {
@@ -27,6 +27,23 @@ export async function getUserWorkspaces() {
       orderBy: { joinedAt: "asc" },
     });
 
+    // Auto-initialize personal workspace on first visit if user has no workspaces
+    if (memberships.length === 0) {
+      await ensurePersonalWorkspace();
+      memberships = await prisma.workspaceMember.findMany({
+        where: { userId },
+        include: {
+          workspace: {
+            include: {
+              members: true,
+              tournaments: { orderBy: { createdAt: "desc" } },
+            },
+          },
+        },
+        orderBy: { joinedAt: "asc" },
+      });
+    }
+
     return memberships.map((m) => ({
       workspace: m.workspace,
       role: m.role,
@@ -36,6 +53,7 @@ export async function getUserWorkspaces() {
     return [];
   }
 }
+
 
 // ── GET single workspace (with role check) ─────────────────────────────────
 export async function getWorkspace(workspaceId: string) {

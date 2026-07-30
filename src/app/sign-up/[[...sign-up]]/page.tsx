@@ -1,39 +1,31 @@
 import { SignUp } from "@clerk/nextjs";
+import { clerkAppearance } from "@/lib/clerk-theme";
+import Link from "next/link";
 
 export default function SignUpPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-2">
-            Axis Engine
-          </p>
-          <h1 className="text-2xl font-bold text-foreground">Create account</h1>
-          <p className="text-sm text-muted mt-1">
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-void relative overflow-hidden">
+      {/* Background ambient glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-signal-orange/10 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="mb-6 text-center">
+          <Link href="/" className="inline-block group mb-3">
+            <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-signal-orange bg-signal-orange/10 border border-signal-orange/30 px-3 py-1 rounded-full group-hover:bg-signal-orange/20 transition-all">
+              Axis Engine
+            </span>
+          </Link>
+          <h1 className="text-2xl font-bold text-text-primary font-display tracking-tight">
+            Create account
+          </h1>
+          <p className="text-sm text-text-muted mt-1">
             Start your analyst workspace today
           </p>
         </div>
-        <SignUp
-          appearance={{
-            variables: {
-              colorPrimary: "#3cbeba",
-              colorBackground: "#0d1117",
-            },
-            elements: {
-              card: "bg-[#12161d] border border-[rgba(52,62,76,0.7)] shadow-[0_0_40px_rgba(60,190,170,0.06)] rounded-xl",
-              headerTitle: "hidden",
-              headerSubtitle: "hidden",
-              socialButtonsBlockButton:
-                "border-[rgba(52,62,76,0.8)] bg-[#0b0f14] text-[#eef2f7] hover:bg-[#161b24]",
-              formFieldInput:
-                "bg-[#0b0f14] border-[rgba(52,62,76,0.8)] text-[#eef2f7] focus:border-[#3cbeba]",
-              formButtonPrimary:
-                "bg-[#3cbeba] hover:bg-[#32a9a9] text-black font-bold",
-              footerActionLink: "text-[#3cbeba]",
-            },
-          }}
-        />
-        <p className="text-center text-[10px] text-muted mt-6">
+
+        <SignUp appearance={clerkAppearance} />
+
+        <p className="text-center text-[11px] text-text-muted font-mono tracking-wider mt-6 uppercase">
           Powered by Axis Stat Engine · Built on Nova Technologies
         </p>
       </div>

@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getUserWorkspaces } from "@/lib/actions/workspace";
+import { isDatabaseConfigured } from "@/lib/prisma";
 import {
   Shield,
   Users,
@@ -15,6 +16,7 @@ export default async function DashboardPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  const dbConfigured = isDatabaseConfigured();
   const [user, workspaceList] = await Promise.all([
     currentUser(),
     getUserWorkspaces(),
@@ -38,7 +40,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {workspaceList.length === 0 && (
+      {!dbConfigured && (
         <div className="telemetry-panel p-5 border-l-4 border-l-warning text-xs font-mono space-y-2">
           <p className="font-bold text-warning uppercase">
             ⚠️ DATABASE CONFIGURATION REQUIRED
@@ -48,6 +50,7 @@ export default async function DashboardPage() {
           </p>
         </div>
       )}
+
 
       {/* Workspace Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
